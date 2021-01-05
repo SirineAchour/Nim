@@ -197,7 +197,8 @@ def start_game():
                     print(" You played : "+str(current))
             else:
                 #L'ordinateur joue ensuite
-                current = minimax_decision_pruning(current, maximizing_player)
+                #current = minimax_decision_pruning(current, maximizing_player)
+                current = minimax_decision(current, maximizing_player)
                 if current is not None:
                     print(" I played : " + str(current))
             if not current:
@@ -218,7 +219,8 @@ def start_game():
                 if current is not None:
                     print(" You played : "+str(current))
             else:
-                current = minimax_decision_pruning(current, maximizing_player)
+                current = minimax_decision(current, maximizing_player)
+                #current = minimax_decision_pruning(current, maximizing_player)
                 if current is not None:
                     print(" I played : " + str(current))
             if not current:
