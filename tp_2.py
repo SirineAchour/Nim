@@ -166,8 +166,7 @@ def start_game():
             check = 1
         except:
             print("Integer please")
-    stacks = {number_of_tokens: 0}
-
+            
     #On décide du joueur grace à un pile ou face
     print("Now we flip a coin to see who gets to play first")
     print("Heads or tails ? (h or t)")
