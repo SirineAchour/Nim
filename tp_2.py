@@ -1,47 +1,53 @@
 import sys
+import time
 from collections import defaultdict
 from copy import deepcopy
-import time
-from operator import itemgetter
 from itertools import chain
+from operator import itemgetter
 from random import randrange
 
 count = 0
 
-
-class Node:
-    def __init__(self, n=10):
-        self.n = n
+#Classe représentant l'état d'un noeud
+class Noeud:
+    #Constructeur de la classe
+    #On a un nombre de cartes = 10 par défaut, mais l'utilisateur peut entrer une autre valeur pendant l'execution
+    def __init__(self, stack=10):
+        self.stack = stack
         self.data = defaultdict(lambda: 0)
-        self.data[self.n] = 1
+        self.data[self.stack] = 1
 
+    #Fonction permettant de trouver les actions résultant en les nodes suivantes de l'état courant
     def actions(self):
         results = []
         for key, value in self.data.items():
+            #On vérifie qu'on a bien plus de 3 cartes dans notre stack
             if key >= 3 and value > 0:
                 for i in range(1, int((key - 1) / 2) + 1):
-                    new_node = deepcopy(self)
-                    new_node.data[key] = value - 1
-                    new_node.data[i] = new_node.data[i] + 1
-                    new_node.data[key - i] = new_node.data[key - i] + 1
-                    #print(new_node.data)
-                    results.append(new_node)
-        #print(results)
+                    action = deepcopy(self)
+                    action.data[key] = value - 1
+                    action.data[i] = action.data[i] + 1
+                    action.data[key - i] = action.data[key - i] + 1
+                    results.append(action)
         return results
-
+    
+    #Fonction vérifiant si le noeud courant est terminal (si aucune autre action n'est possible)
     def is_terminal(self):
         return len(self.actions()) == 0
 
+    #Fonction permettant d'afficher l'état du noeud sous forme de chaine
     def __str__(self):
         values = list(chain.from_iterable([str(key) for _ in range(value)] for key, value in self.data.items()))
         return " ".join(values)
 
+    #Fonction permettant au joueur, s'il est humain, de choisir une action à effectuer pour avancer le jeu
     def choose_action(self):
         actions = self.actions()
         if self.is_terminal():
             return None
         print("Choose your next move:")
         i = 0
+        #Imprime dans la console toutes les actions possibles du joueur
         for index, action in enumerate(self.actions()):
             print(str(index) + ") " + str(action))
             i = index
@@ -58,11 +64,14 @@ class Node:
         return actions[index]
 
 
+#Fonction Minimax permettant de retourner le résultat
 def minimax(node, maximizing_player):
     global count
     count = count + 1
+    #Si l'état est terminal, on retourne le résultat, dépendant de qui joue
     if node.is_terminal():
         return 0 if maximizing_player else 1
+    #Sinon on applique Minimax sur les états suivants de l'état courant
     if maximizing_player:
         value = float('-inf')
         for child in node.actions():
@@ -74,7 +83,7 @@ def minimax(node, maximizing_player):
             value = min(value, minimax(child, True))
         return value
 
-
+#Fonction permettant à l'ordinateur de choisir sa prochaine action
 def minimax_decision(node, maximizing_player):
     if node.is_terminal():
         return None
@@ -97,7 +106,7 @@ def minimax_decision(node, maximizing_player):
             )
         return min_action
 
-
+#Fonction permettant de ne pas vérifier des branches de l'arbre inutilement
 def minimax_pruning(node, maximizing_player, alpha, beta):
     global count
     count = count + 1
@@ -120,7 +129,7 @@ def minimax_pruning(node, maximizing_player, alpha, beta):
             beta = min(beta, value)
         return value
 
-
+#Fonction de décision de l'ordinateur qui n'utilise pas le pruning
 def minimax_decision_pruning(node, maximizing_player):
     if node.is_terminal():
         return None
@@ -149,7 +158,7 @@ def start_game():
     print("Hi player.. what's your name ?")
     name = input()
     print("Okay then " + str(name) + ", let's play.")
-    print("How many things in the stack do you want there to be? (make sure you input an integer)")
+    print("How many cards in the stack do you want there to be? (make sure you input an integer)")
     check = 0
     while check == 0:
         try:
@@ -159,6 +168,7 @@ def start_game():
             print("Integer please")
     stacks = {number_of_tokens: 0}
 
+    #On décide du joueur grace à un pile ou face
     print("Now we flip a coin to see who gets to play first")
     print("Heads or tails ? (h or t)")
     coin = input().strip()
@@ -174,17 +184,20 @@ def start_game():
     n = 0
     if coin == "t":
         n = 1
-    current = Node(n=number_of_tokens)
+    current = Noeud(stack=number_of_tokens)
+    #Si le joueur commence:
     if randrange(10) % 2 == n:
         print("You play first. Good luck!")
         print("Initially we have "+str(current)+" elements")
         maximizing_player = True
         while True:
             if maximizing_player:
+                #Il choisit l'action qu'il compte entreprendre
                 current = current.choose_action()
                 if current is not None:
                     print(" You played : "+str(current))
             else:
+                #L'ordinateur joue ensuite
                 current = minimax_decision(current, maximizing_player)
                 if current is not None:
                     print(" I played : " + str(current))
@@ -195,7 +208,7 @@ def start_game():
                     print("Congrats "+name+"! You won!")
                 break
             maximizing_player = not maximizing_player
-
+    #Si la machine commence:
     else:
         print("Looks like i play first. Good luck!")
         print("Initially we have "+str(current)+" elements")
@@ -217,7 +230,5 @@ def start_game():
                 break
             maximizing_player = not maximizing_player
 
-
-if __name__ == '__main__':
-    start_game()
-    print("Number of nodes visited:", count)
+start_game()
+print("Number of nodes visited:", count)
