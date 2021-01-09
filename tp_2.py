@@ -157,6 +157,15 @@ def start_game():
     number_of_tokens = 0
     print("Hi player.. what's your name ?")
     name = input()
+    print("Would you like to play with pruning? (y/n)")
+    r = input().strip()
+    while (not r == "y") and (not r == "n"):
+        print("y or n please")
+        r = input().strip()
+    if r == "n":
+        minmaxfunc = minimax_decision
+    else :
+        minmaxfunc = minimax_decision_pruning
     print("Okay then " + str(name) + ", let's play.")
     print("How many cards in the stack do you want there to be? (make sure you input an integer)")
     check = 0
@@ -198,7 +207,7 @@ def start_game():
             else:
                 #L'ordinateur joue ensuite
                 #current = minimax_decision_pruning(current, maximizing_player)
-                current = minimax_decision(current, maximizing_player)
+                current = minmaxfunc(current, maximizing_player)
                 if current is not None:
                     print(" I played : " + str(current))
             if not current:
@@ -219,7 +228,7 @@ def start_game():
                 if current is not None:
                     print(" You played : "+str(current))
             else:
-                current = minimax_decision(current, maximizing_player)
+                current = minmaxfunc(current, maximizing_player)
                 #current = minimax_decision_pruning(current, maximizing_player)
                 if current is not None:
                     print(" I played : " + str(current))
