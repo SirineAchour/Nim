@@ -239,6 +239,7 @@ def start_game():
                     print("Boohoo you lost.")
                 break
             maximizing_player = not maximizing_player
+    input()
 
 start_game()
 print("Number of nodes visited:", count)
